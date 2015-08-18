@@ -23,7 +23,12 @@ $quizList = array(
 	)
 );
 
-var_dump($quizList);
+// var_dump($quizList);
+
+$qnum = mt_rand(0, count($quizList) - 1);
+$quiz = $quizList[$qnum];
+
+shuffle($quiz['a']);
 
 ?>
 
@@ -35,6 +40,11 @@ var_dump($quizList);
 	</head>
 	<body>
 		<h1>簡単クイズ</h1>
-		
+		<p>Q. <?php echo h($quiz['q']); ?></p>
+		<?php foreach ($quiz['a'] as $answer) : ?>
+			<form>
+				<input type="submit" name="answer" value="<?php echo h($answer); ?>">
+			</form>
+		<?php endforeach; ?>
 	</body>
 </html>
