@@ -93,6 +93,9 @@ shuffle($quiz['a']);
 		<div style="padding:7px;background:#eee;border:#ccc";>
 			<?php echo h($_SESSION['num']); ?> 問中、
 			<?php echo h($_SESSION['correct_count']); ?>問正解！
+			<?php if ($_SESSION['num'] > 0) : ?>
+				正答率は <?php echo h ( sprintf("%.2f", $_SESSION['correct_count'] / $_SESSION['num'] * 100)); ?>
+			<?php endif ; ?>
 		</div>
 		<h1>簡単クイズ</h1>
 		<p>Q. <?php echo h($quiz['q']); ?></p>
