@@ -28,6 +28,7 @@ $quizList = array(
 function resetSession() {
 	$_SESSION['correct_count'] = 0;
 	$_SESSION['num'] = 0;
+	$_SESSION['token'] = sha1(uniqid(mt_rand(), true));
 }
 
 function redirect() {
@@ -37,10 +38,27 @@ function redirect() {
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	// CSRF対策
+	if ($_POST['token'] !== $_SESSION['token']) {
+		echo "不正な投稿です";
+		exit;
+	}
 	if (isset($_POST['reset']) && $_POST['reset'] === '1') {
 		resetSession();
 		redirect();
 	}
+
+	if (!isset($_POST['qnum']) || $_SESSION['qnum'] !== $_POST['qnum']) {
+		echo "不正な投稿です";
+		exit;
+	}
+
+	if (!isset($quizList[$_POST['qnum']])) {
+		echo "不正な投稿です";
+		exit;
+	}
+
+
 	if ($_POST['answer'] === $quizList[$_POST['qnum']]['a'][0]) {
 		// echo "正解！";
 		// exit;
@@ -82,12 +100,14 @@ shuffle($quiz['a']);
 			<form action="" method="post">
 				<input type="submit" name="answer" value="<?php echo h($answer); ?>">
 				<input type="hidden" name="qnum" value="<?php echo h($_SESSION['qnum']); ?>">
+				<input type="hidden" name="token" value="<?php echo h($_SESSION['token']); ?>">
 			</form>
 		<?php endforeach; ?>
 		<hr>
 		<form action="" method="post">
 			<input type="submit" value="リセット">
 			<input type="hidden" name="reset" value="1">
+			<input type="hidden" name="token" value="<?php echo h($_SESSION['token']); ?>">
 		</form>
 	</body>
 </html>
