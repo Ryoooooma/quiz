@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 function h($s) {
 	return htmlspecialchars($s, ENT_QUOTES, 'utf-8');
 }
@@ -23,10 +25,28 @@ $quizList = array(
 	)
 );
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if ($_POST['answer'] === $quizList[$_POST['qnum']]['a'][0]) {
+		// echo "正解！";
+		// exit;
+		$_SESSION['correct_count']++;
+	}
+	$_SESSION['num']++;
+	header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+	exit;
+}
+
 // var_dump($quizList);
+
+if (empty($_SESSION)) {
+	$_SESSION['correct_count'] = 0;
+	$_SESSION['num'] = 0;
+}
 
 $qnum = mt_rand(0, count($quizList) - 1);
 $quiz = $quizList[$qnum];
+
+$_SESSION['qnum'] = (string)$qnum;
 
 shuffle($quiz['a']);
 
@@ -39,11 +59,16 @@ shuffle($quiz['a']);
 		<title>簡単クイズ</title>
 	</head>
 	<body>
+		<div style="padding:7px;background:#eee;border:#ccc";>
+			<?php echo h($_SESSION['num']); ?> 問中、
+			<?php echo h($_SESSION['correct_count']); ?>問正解！
+		</div>
 		<h1>簡単クイズ</h1>
 		<p>Q. <?php echo h($quiz['q']); ?></p>
 		<?php foreach ($quiz['a'] as $answer) : ?>
-			<form>
+			<form action="" method="post">
 				<input type="submit" name="answer" value="<?php echo h($answer); ?>">
+				<input type="hidden" name="qnum" value="<?php echo h($_SESSION['qnum']); ?>">
 			</form>
 		<?php endforeach; ?>
 	</body>
