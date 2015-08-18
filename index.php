@@ -25,22 +25,35 @@ $quizList = array(
 	)
 );
 
+function resetSession() {
+	$_SESSION['correct_count'] = 0;
+	$_SESSION['num'] = 0;
+}
+
+function redirect() {
+	header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+	exit;
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if (isset($_POST['reset']) && $_POST['reset'] === '1') {
+		resetSession();
+		redirect();
+	}
 	if ($_POST['answer'] === $quizList[$_POST['qnum']]['a'][0]) {
 		// echo "正解！";
 		// exit;
 		$_SESSION['correct_count']++;
 	}
 	$_SESSION['num']++;
-	header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-	exit;
+	redirect();
 }
 
 // var_dump($quizList);
 
 if (empty($_SESSION)) {
-	$_SESSION['correct_count'] = 0;
-	$_SESSION['num'] = 0;
+	resetSession();
 }
 
 $qnum = mt_rand(0, count($quizList) - 1);
@@ -71,5 +84,10 @@ shuffle($quiz['a']);
 				<input type="hidden" name="qnum" value="<?php echo h($_SESSION['qnum']); ?>">
 			</form>
 		<?php endforeach; ?>
+		<hr>
+		<form action="" method="post">
+			<input type="submit" value="リセット">
+			<input type="hidden" name="reset" value="1">
+		</form>
 	</body>
 </html>
